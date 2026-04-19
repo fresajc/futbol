@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fútbol">
+<meta name="theme-color" content="#0f0e0c">
+<title>Fútbol</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@300;400;500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0e0c;
+  --surface: #1a1916;
+  --card: #222018;
+  --border: #2e2c26;
+  --border2: #3a3830;
+  --accent: #e8c547;
+  --red: #d94f2a;
+  --blue: #3a8fd4;
+  --green: #3aad5a;
+  --orange: #d47a2a;
+  --purple: #8b5cf6;
+  --text: #f0ede6;
+  --muted: #6b6860;
+  --muted2: #9a9588;
+  --mono: 'Fira Code', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overscroll-behavior: none;
+}
+
+/* ── SCREENS ── */
+.screen { display: none; flex-direction: column; height: 100vh; height: 100dvh; }
+.screen.active { display: flex; }
+
+/* ── STATUS BAR SAFE AREA ── */
+.safe-top { padding-top: env(safe-area-inset-top, 0px); background: var(--bg); }
+
+/* ── HOME SCREEN ── */
+#screen-home {
+  background: var(--bg);
+}
+
+.home-header {
+  padding: calc(env(safe-area-inset-top, 16px) + 20px) 24px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.home-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.home-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 36px;
+  line-height: 0.95;
+  letter-spacing: -1px;
+}
+
+.home-title em { color: var(--accent); font-style: normal; }
+
+.home-week-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 1px;
+}
+
+.week-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* ── DAY CARDS (home) ── */
+.home-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+
+.day-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.day-card:active { transform: scale(0.98); }
+.day-card.today { border-color: var(--accent); }
+.day-card.today .day-card-accent { background: var(--accent); }
+
+.day-card-accent {
+  height: 3px;
+  background: var(--border2);
+  transition: width 0.3s;
+}
+
+.day-card-inner {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 14px;
+}
+
+.day-card-left {
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+}
+
+.day-card-abbr {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.day-card-md {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.day-card-center { flex: 1; min-width: 0; }
+
+.day-card-name {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-card-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-card-right {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.day-card-load {
+  width: 40px;
+  height: 3px;
+  background: var(--border2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.day-card-load-fill { height: 100%; border-radius: 2px; }
+
+.day-card-arrow {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.today-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 200;
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--muted);
+  transition: color 0.15s;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 20px; height: 20px; }
+
+/* ── DAY DETAIL SCREEN ── */
+#screen-day {
+  background: var(--bg);
+}
+
+.day-detail-header {
+  padding: calc(env(safe-area-inset-top, 16px) + 12px) 20px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.day-detail-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.day-detail-name {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-detail-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.day-detail-badge {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.day-detail-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+
+/* ── BLOCK ── */
+.block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.block-hdr {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.block-num {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 10px;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--border2);
+  border-radius: 2px;
+  flex-shrink: 0;
+  color: var(--muted2);
+}
+
+.block-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex: 1;
+  color: var(--text);
+}
+
+.block-dur {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.block-chevron {
+  font-size: 10px;
+  color: var(--muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.block.open .block-chevron { transform: rotate(180deg); }
+
+.block-body { display: none; border-top: 1px solid var(--border); }
+.block.open .block-body { display: block; }
+
+/* ── EX TABLE ── */
+.ex-wrap { padding: 4px 14px 8px; }
+
+table.ex {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+}
+
+table.ex th {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-align: left;
+  padding: 0 6px 6px 0;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+table.ex td {
+  padding: 9px 6px 9px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+table.ex tr:last-child td { border-bottom: none; }
+
+.e-name { font-weight: 600; font-size: 13px; color: var(--text); line-height: 1.3; }
+.e-note { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: var(--mono); line-height: 1.4; }
+.e-vol { font-family: 'Archivo Black', sans-serif; font-size: 12px; white-space: nowrap; color: var(--accent); }
+.e-rest { font-family: var(--mono); font-size: 10px; color: var(--muted2); white-space: nowrap; }
+
+.load-strip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 1px;
+}
+.load-track { flex:1; height:2px; background:var(--border); border-radius:1px; overflow:hidden; }
+.load-fill { height:100%; border-radius:1px; }
+
+/* ── EVIDENCE NOTE ── */
+.ev-note {
+  background: var(--card);
+  border-left: 2px solid var(--blue);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 0 4px 4px 0;
+}
+.ev-src { font-family: var(--mono); font-size: 8px; letter-spacing: 1.5px; color: var(--blue); text-transform: uppercase; margin-bottom: 3px; }
+.ev-note p { font-size: 11px; color: var(--muted2); line-height: 1.6; }
+.ev-note strong { color: var(--text); }
+
+/* ── REST CARD ── */
+.rest-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.rest-title { font-family: 'Archivo Black', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--purple); }
+.rest-desc { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+
+/* ── MATCH CARD ── */
+.match-card {
+  background: var(--card);
+  border: 1px solid var(--orange);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.match-title { font-family: 'Archivo Black', sans-serif; font-size: 18px; color: var(--orange); letter-spacing: 1px; margin-bottom: 12px; }
+.match-items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.match-item { padding: 8px 10px; background: var(--surface); border-radius: 3px; }
+.match-lbl { font-family: var(--mono); font-size: 8px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+.match-val { font-size: 11px; color: var(--text); line-height: 1.5; }
+
+/* ── UPDATE SCREEN ── */
+#screen-update {
+  background: var(--bg);
+}
+
+.update-header {
+  padding: calc(env(safe-area-inset-top, 16px) + 20px) 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.update-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.update-title em { color: var(--accent); font-style: normal; }
+.update-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+
+.update-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+}
+
+.update-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.update-textarea {
+  width: 100%;
+  min-height: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  -webkit-appearance: none;
+}
+.update-textarea:focus { border-color: var(--accent); }
+.update-textarea::placeholder { color: var(--muted); }
+
+.update-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.update-btn:active { opacity: 0.8; }
+
+.update-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.update-divider::before, .update-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.update-history-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.uh-week { font-family: 'Archivo Black', sans-serif; font-size: 13px; color: var(--accent); margin-bottom: 4px; }
+.uh-date { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+.update-success {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 12px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  letter-spacing: 0.5px;
+}
+
+.update-error {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+}
+
+/* ── INSTALL BANNER ── */
+.install-banner {
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.install-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.install-text { flex: 1; }
+.install-title { font-family: 'Archivo Black', sans-serif; font-size: 12px; color: var(--accent); margin-bottom: 3px; }
+.install-desc { font-size: 11px; color: var(--muted2); line-height: 1.5; font-family: var(--mono); }
+.install-close { font-size: 16px; color: var(--muted); cursor: pointer; flex-shrink: 0; background: none; border: none; padding: 0; }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME SCREEN ══ -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="home-eyebrow">Performance Protocol</div>
+    <div class="home-title">FÚTBOL<br><em>TRAINING</em></div>
+    <div class="home-week-badge">
+      <div class="week-dot"></div>
+      <span id="week-label">Cargando...</span>
+    </div>
+  </div>
+  <div class="home-scroll" id="home-scroll">
+    <div id="install-banner" class="install-banner" style="display:none">
+      <div class="install-icon">📲</div>
+      <div class="install-text">
+        <div class="install-title">Instalá como app</div>
+        <div class="install-desc">Tocá Compartir → "Agregar a pantalla de inicio" para usarla como app real.</div>
+      </div>
+      <button class="install-close" onclick="dismissInstall()">×</button>
+    </div>
+    <div id="day-cards-container"></div>
+  </div>
+</div>
+
+<!-- ══ DAY DETAIL SCREEN ══ -->
+<div class="screen" id="screen-day">
+  <div class="day-detail-header">
+    <button class="back-btn" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M15 18l-6-6 6-6"/></svg>
+      Volver
+    </button>
+    <div class="day-detail-title">
+      <div class="day-detail-name" id="detail-name">—</div>
+      <div class="day-detail-meta" id="detail-meta">—</div>
+    </div>
+    <div class="day-detail-badge" id="detail-badge">—</div>
+  </div>
+  <div class="day-detail-scroll" id="detail-content"></div>
+</div>
+
+<!-- ══ UPDATE SCREEN ══ -->
+<div class="screen" id="screen-update">
+  <div class="update-header">
+    <div class="update-title">ACTUALIZAR<br><em>SEMANA</em></div>
+    <div class="update-sub">Pegá el código que te da Claude</div>
+  </div>
+  <div class="update-scroll">
+    <div class="update-label">Código de semana</div>
+    <textarea class="update-textarea" id="update-input" placeholder='Pegá acá el bloque JSON que te manda Claude. Empieza con { "week": ...'></textarea>
+    <button class="update-btn" onclick="applyUpdate()">CARGAR SEMANA</button>
+    <div class="update-success" id="update-success">✓ Semana actualizada correctamente</div>
+    <div class="update-error" id="update-error"></div>
+
+    <div class="update-divider">historial</div>
+    <div id="update-history"></div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="switchNav('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    Semana
+  </button>
+  <button class="nav-btn" id="nav-update" onclick="switchNav('update')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+    Actualizar
+  </button>
+</div>
+
+<script>
+// ── DEFAULT WEEK DATA ──
+const DEFAULT_WEEK = {
+  week: "Semana 3",
+  context: "Vuelta al ruedo — 2 semanas sin entrenar. Volumen reducido. Partido sábado.",
+  match: true,
+  days: [
+    {
+      id: "lun", abbr: "LUN", name: "LUNES", md: "MD+6",
+      focus: "Upper + Surf maintenance · 55 min",
+      color: "#3a8fd4", load: 55,
+      blocks: [
+        {
+          title: "Entrada en calor", duration: "8 min",
+          exercises: [
+            { name: "Band Pull-Aparts", note: "Activación escapular", vol: "2×20", rest: "30s" },
+            { name: "External Rotation (banda)", note: "", vol: "2×15/lado", rest: "30s" },
+            { name: "Scap Push-Ups", note: "", vol: "2×12", rest: "20s" },
+            { name: "Dead Hang", note: "Descompresión hombro", vol: "3×20s", rest: "20s" }
+          ]
+        },
+        {
+          title: "Fuerza Upper", duration: "30 min",
+          evidence: { src: "Buchheit 2024 — Principio 7", text: "Upper body en MD+2 mantiene fuerza sin cargar el tren inferior fatigado. Una serie menos esta semana — vuelta gradual." },
+          exercises: [
+            { name: "Push Press", note: "47kg. Una serie menos — calibrá el cuerpo", vol: "3×4", rest: "2 min" },
+            { name: "Weighted Pull-Ups", note: "Reps fijas > AMRAP. Calidad sobre volumen.", vol: "3×5", rest: "90s" },
+            { name: "Incline DB Press", note: "Excéntrico 3s", vol: "3×8", rest: "90s" },
+            { name: "Bent-Over Row", note: "Espalda plana, codos hacia atrás", vol: "3×6", rest: "90s" }
+          ],
+          load: 65
+        },
+        {
+          title: "Surf Maintenance", duration: "10 min",
+          exercises: [
+            { name: "Band Paddling Simulation", note: "Brazos de arriba hacia caderas. Patrón de remada.", vol: "3×30s", rest: "35s" },
+            { name: "Straight-Arm Pulldown", note: "Dorsal dominante. Mejor ejercicio de remada en gym.", vol: "3×12", rest: "60s" },
+            { name: "Face Pulls", note: "Salud del manguito rotador", vol: "2×15", rest: "30s" }
+          ]
+        },
+        {
+          title: "Core", duration: "7 min",
+          exercises: [
+            { name: "Pallof Press", note: "Anti-rotación. El mejor ejercicio de core para fútbol.", vol: "3×12/lado", rest: "45s" },
+            { name: "Hollow Hold", note: "", vol: "3×25s", rest: "40s" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "mar", abbr: "MAR", name: "MARTES", md: "MD-4",
+      focus: "Fuerza lower + HSR · 55 min",
+      color: "#d94f2a", load: 88,
+      blocks: [
+        {
+          title: "Entrada en calor", duration: "10 min",
+          exercises: [
+            { name: "Bici suave", note: "", vol: "4 min", rest: "" },
+            { name: "Knee wall drill", note: "Movilidad tobillo", vol: "3×10", rest: "" },
+            { name: "Tibialis raise", note: "", vol: "2×20", rest: "" },
+            { name: "Monster walk", note: "", vol: "2×15", rest: "" },
+            { name: "Progresiones 60–80%", note: "", vol: "3×20m", rest: "30s" }
+          ]
+        },
+        {
+          title: "Fuerza Lower", duration: "28 min",
+          evidence: { src: "Oliva-Lozano 2022 · Buchheit 2024", text: "MD-4 es el día de carga pico. Volumen reducido esta semana por las 2 semanas sin entrenar — el DOMS del BSS va a pegar fuerte igual." },
+          exercises: [
+            { name: "Trap Bar Deadlift", note: "95kg. Una serie menos esta semana.", vol: "3×4", rest: "2 min" },
+            { name: "Nordic Hamstring Curl", note: "Antes del BSS — SNC más fresco. 51% menos lesiones (Petersen et al.)", vol: "3×5", rest: "90s" },
+            { name: "Bulgarian Split Squat", note: "16kg c/u. 2 reps menos — respetá la vuelta gradual.", vol: "3×6/pierna", rest: "90s" },
+            { name: "Hip Thrust", note: "95kg. Hold 1s arriba.", vol: "3×8", rest: "90s" },
+            { name: "Box Jump", note: "Post-activación con deadlift. Bajá caminando.", vol: "3×4", rest: "90s" }
+          ],
+          load: 85
+        },
+        {
+          title: "High Speed Running", duration: "12 min",
+          evidence: { src: "La Liga GPS · Silva 2023", text: "HSR era el hueco principal del plan anterior. Volumen reducido esta semana." },
+          exercises: [
+            { name: "Progresiones 70–85%", note: "Activar patrón de sprint", vol: "3×40m", rest: "60s" },
+            { name: "High-speed runs 85–90%", note: "Controlado pero rápido. No máximo.", vol: "4×60m", rest: "90s" },
+            { name: "5-10-5 Agility", note: "Plante firme en cada corte", vol: "3 reps", rest: "75s" }
+          ],
+          load: 88
+        },
+        {
+          title: "Prehab cierre", duration: "5 min",
+          exercises: [
+            { name: "Spanish squat", note: "", vol: "3×40s", rest: "" },
+            { name: "Sóleo sentado", note: "", vol: "2×15", rest: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "mie", abbr: "MIÉ", name: "MIÉRCOLES", md: "MD-3",
+      focus: "Acondicionamiento · 50 min",
+      color: "#d94f2a", load: 95,
+      blocks: [
+        {
+          title: "Entrada en calor", duration: "10 min",
+          exercises: [
+            { name: "Trote suave", note: "", vol: "4 min", rest: "" },
+            { name: "A-skip + B-skip", note: "", vol: "2×30m c/u", rest: "" },
+            { name: "Talones-glúteos", note: "", vol: "2×30m", rest: "" },
+            { name: "Movilidad cadera + tobillo", note: "", vol: "5 min", rest: "" }
+          ]
+        },
+        {
+          title: "Zona 2", duration: "20 min",
+          evidence: { src: "Silva 2023 · Buchheit 2024", text: "La sesión más exigente de la semana. 72h antes del partido. 5 min menos que normal — respetá la vuelta gradual." },
+          exercises: [
+            { name: "Trote continuo", note: "Respiración nasal. 65–72% FCmax. Sin mirar el reloj.", vol: "20 min", rest: "Zona 2" }
+          ],
+          load: 55
+        },
+        {
+          title: "Intervalos 30/60", duration: "10 min",
+          exercises: [
+            { name: "30s fuerte / 60s trote", note: "90–95% en el fuerte. 6 reps esta semana (no 8).", vol: "6 reps", rest: "60s trote" }
+          ],
+          load: 80
+        },
+        {
+          title: "RSA", duration: "10 min",
+          exercises: [
+            { name: "Set 1 — 5×30m", note: "Intención máxima. 25s entre sprints.", vol: "5×30m", rest: "25s" },
+            { name: "Descanso entre sets", note: "", vol: "—", rest: "3 min" },
+            { name: "Set 2 — 5×30m", note: "2 sets esta semana, no 3.", vol: "5×30m", rest: "25s" }
+          ],
+          load: 95
+        },
+        {
+          title: "Movilidad cierre", duration: "8 min",
+          exercises: [
+            { name: "Knee wall drill", note: "", vol: "2×10", rest: "" },
+            { name: "Gemelo + sóleo", note: "", vol: "2×40s c/u", rest: "" },
+            { name: "90/90 cadera", note: "", vol: "2×8/lado", rest: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "jue", abbr: "JUE", name: "JUEVES", md: "MD-2",
+      focus: "Velocidad máxima + movilidad · 35 min",
+      color: "#d47a2a", load: 42,
+      blocks: [
+        {
+          title: "Entrada en calor", duration: "10 min",
+          exercises: [
+            { name: "Trote suave + leg swings", note: "", vol: "3 min", rest: "" },
+            { name: "A-skip + B-skip", note: "", vol: "2×20m c/u", rest: "" },
+            { name: "Progresiones 60–75–90%", note: "", vol: "3×30m", rest: "45s" }
+          ]
+        },
+        {
+          title: "Bloque velocidad máxima", duration: "15 min",
+          evidence: { src: "Buchheit 2024 — Principio 6", text: "Velocidad >95% Vmax en MD-2 reduce lesiones y mejora la respuesta el día del partido. Calidad total, recuperación completa." },
+          exercises: [
+            { name: "Flying 20m", note: "10m entrada → 20m cerca del máximo. Mecánica > tiempo.", vol: "4×20m", rest: "3 min completo" },
+            { name: "5-10-5 Agility", note: "Cortes limpios. No acondicionamiento — calidad pura.", vol: "3 reps", rest: "90s" }
+          ],
+          load: 42
+        },
+        {
+          title: "Movilidad + prehab", duration: "10 min",
+          exercises: [
+            { name: "90/90 cadera", note: "", vol: "2×90s/lado", rest: "" },
+            { name: "Couch stretch", note: "", vol: "2×75s/lado", rest: "" },
+            { name: "Gemelo + sóleo", note: "", vol: "2×45s/lado", rest: "" },
+            { name: "Tibialis raise", note: "", vol: "2×15", rest: "" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "vie", abbr: "VIE", name: "VIERNES", md: "MD-1",
+      focus: "Activación pre-partido · 20 min",
+      color: "#3aad5a", load: 14,
+      blocks: [
+        {
+          title: "Activación pre-partido", duration: "20 min",
+          evidence: { src: "Buchheit 2024 — Principios 8 y 9", text: "Taper real. Volumen mínimo, intensidad moderada. Activar el SNC sin crear fatiga." },
+          exercises: [
+            { name: "Goblet squat 28kg", note: "Excéntrico lento. Activación, no fatiga.", vol: "3×5", rest: "90s" },
+            { name: "Aceleraciones 80–85%", note: "", vol: "3×20m", rest: "60s" },
+            { name: "COD suaves", note: "Sprint corto, plante, cambio de dirección. Relajado.", vol: "2 reps", rest: "60s" },
+            { name: "Movilidad tobillo", note: "", vol: "5 min", rest: "" },
+            { name: "Rotación externa con banda", note: "", vol: "2×15", rest: "30s" },
+            { name: "Face pulls livianos", note: "", vol: "2×15", rest: "30s" }
+          ],
+          load: 14
+        }
+      ]
+    },
+    {
+      id: "sab", abbr: "SÁB", name: "SÁBADO", md: "PARTIDO",
+      focus: "Match Day",
+      color: "#d47a2a", load: 100,
+      isMatch: true
+    },
+    {
+      id: "dom", abbr: "DOM", name: "DOMINGO", md: "MD+1",
+      focus: "Recuperación activa · 25 min",
+      color: "#8b5cf6", load: 10,
+      isRest: true,
+      restText: "Pileta suave 20 min o bici liviana. Después: gemelo, tobillo, cadera, rotación torácica. Nada más."
+    }
+  ]
+};
+
+// ── STATE ──
+let currentWeek = null;
+let currentDayId = null;
+
+// ── STORAGE ──
+function saveWeek(data) {
+  try {
+    localStorage.setItem('fútbol_week', JSON.stringify(data));
+    saveHistory(data);
+  } catch(e) {}
+}
+
+function loadWeek() {
+  try {
+    const saved = localStorage.getItem('fútbol_week');
+    return saved ? JSON.parse(saved) : null;
+  } catch(e) { return null; }
+}
+
+function saveHistory(data) {
+  try {
+    let history = JSON.parse(localStorage.getItem('fútbol_history') || '[]');
+    const entry = { week: data.week, date: new Date().toLocaleDateString('es-AR') };
+    history = history.filter(h => h.week !== data.week);
+    history.unshift(entry);
+    history = history.slice(0, 8);
+    localStorage.setItem('fútbol_history', JSON.stringify(history));
+  } catch(e) {}
+}
+
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem('fútbol_history') || '[]');
+  } catch(e) { return []; }
+}
+
+function dismissInstall() {
+  try { localStorage.setItem('fútbol_install_dismissed', '1'); } catch(e) {}
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+// ── TODAY ──
+function getTodayId() {
+  const d = new Date().getDay();
+  return ['dom','lun','mar','mie','jue','vie','sab'][d];
+}
+
+// ── RENDER HOME ──
+function renderHome() {
+  const week = currentWeek;
+  document.getElementById('week-label').textContent = week.week + (week.context ? ' — ' + week.context.split('.')[0] : '');
+
+  const todayId = getTodayId();
+  const container = document.getElementById('day-cards-container');
+  container.innerHTML = '';
+
+  week.days.forEach(day => {
+    const isToday = day.id === todayId;
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isToday ? ' today' : '');
+    card.onclick = () => openDay(day.id);
+
+    const loadPct = day.load || 0;
+
+    card.innerHTML = `
+      <div class="day-card-accent" style="width:${loadPct}%; background:${day.color}"></div>
+      <div class="day-card-inner">
+        <div class="day-card-left">
+          <div class="day-card-abbr" style="color:${day.color}">${day.abbr}</div>
+          <div class="day-card-md">${day.md}</div>
+        </div>
+        <div class="day-card-center">
+          <div class="day-card-name">${day.name}</div>
+          <div class="day-card-sub">${day.focus}</div>
+        </div>
+        <div class="day-card-right">
+          ${isToday ? '<div class="today-badge">HOY</div>' : ''}
+          <div class="day-card-load"><div class="day-card-load-fill" style="width:${loadPct}%;background:${day.color}"></div></div>
+          <div class="day-card-arrow">›</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // install banner
+  try {
+    const dismissed = localStorage.getItem('fútbol_install_dismissed');
+    const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    if (!dismissed && !isStandalone) {
+      document.getElementById('install-banner').style.display = 'flex';
+    }
+  } catch(e) {}
+}
+
+// ── OPEN DAY ──
+function openDay(dayId) {
+  const day = currentWeek.days.find(d => d.id === dayId);
+  if (!day) return;
+  currentDayId = dayId;
+
+  document.getElementById('detail-name').textContent = day.name;
+  document.getElementById('detail-meta').textContent = day.md + ' · ' + day.focus;
+  const badge = document.getElementById('detail-badge');
+  badge.textContent = day.md;
+  badge.style.color = day.color;
+  badge.style.borderColor = day.color;
+
+  const content = document.getElementById('detail-content');
+  content.innerHTML = '';
+
+  if (day.isMatch) {
+    content.innerHTML = `
+      <div class="match-card">
+        <div class="match-title">⚽ DÍA DE PARTIDO</div>
+        <div class="match-items">
+          <div class="match-item"><div class="match-lbl">−3 horas</div><div class="match-val">Comida alta en carbs. Arroz o pasta. 500ml agua.</div></div>
+          <div class="match-item"><div class="match-lbl">−60 min</div><div class="match-val">Knee wall 2×10. 3 aceleraciones 80%. 1 sprint. 2 COD suaves.</div></div>
+          <div class="match-item"><div class="match-lbl">Medio tiempo</div><div class="match-val">Mantenete tibio. Cuádriceps + gemelo.</div></div>
+          <div class="match-item"><div class="match-lbl">Post-partido</div><div class="match-val">20–30g proteína. Caminata 10 min.</div></div>
+        </div>
+      </div>
+      <div class="ev-note"><div class="ev-src">GPS data — fútbol profesional</div><p>Partido promedio: <strong>10–12 km totales</strong>, <strong>800–1200m a alta velocidad</strong>, 50–80 sprints. Toda la semana existe para esto.</p></div>
+    `;
+  } else if (day.isRest) {
+    content.innerHTML = `
+      <div class="rest-card">
+        <div class="rest-title">♻️ RECUPERACIÓN ACTIVA</div>
+        <div class="rest-desc">${day.restText || 'Recuperación activa. Nada de carga.'}</div>
+      </div>
+    `;
+  } else {
+    (day.blocks || []).forEach((block, i) => {
+      const el = document.createElement('div');
+      el.className = 'block open';
+
+      let evHTML = '';
+      if (block.evidence) {
+        evHTML = `<div class="ev-note"><div class="ev-src">${block.evidence.src}</div><p>${block.evidence.text}</p></div>`;
+      }
+
+      let rowsHTML = (block.exercises || []).map(ex => `
+        <tr>
+          <td>
+            <div class="e-name">${ex.name}</div>
+            ${ex.note ? `<div class="e-note">${ex.note}</div>` : ''}
+          </td>
+          <td><div class="e-vol">${ex.vol}</div></td>
+          <td><div class="e-rest">${ex.rest || ''}</div></td>
+        </tr>
+      `).join('');
+
+      let loadHTML = block.load ? `
+        <div class="load-strip">CARGA
+          <div class="load-track"><div class="load-fill" style="width:${block.load}%;background:${day.color}"></div></div>
+        </div>
+      ` : '';
+
+      el.innerHTML = `
+        <div class="block-hdr" onclick="this.closest('.block').classList.toggle('open');this.querySelector('.block-chevron').style.transform=this.closest('.block').classList.contains('open')?'rotate(180deg)':''">
+          <div class="block-num" style="background:${day.color}22;color:${day.color}">${String(i+1).padStart(2,'0')}</div>
+          <div class="block-title">${block.title}</div>
+          ${block.duration ? `<div class="block-dur">${block.duration}</div>` : ''}
+          <div class="block-chevron" style="transform:rotate(180deg)">▼</div>
+        </div>
+        <div class="block-body">
+          ${evHTML}
+          <div class="ex-wrap">
+            <table class="ex">
+              <thead><tr><th>Ejercicio</th><th>Vol</th><th>Desc</th></tr></thead>
+              <tbody>${rowsHTML}</tbody>
+            </table>
+          </div>
+          ${loadHTML}
+        </div>
+      `;
+      content.appendChild(el);
+    });
+  }
+
+  document.getElementById('detail-content').scrollTop = 0;
+  showScreen('day');
+}
+
+// ── NAVIGATION ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function goHome() {
+  showScreen('home');
+}
+
+function switchNav(tab) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'home') showScreen('home');
+  else if (tab === 'update') {
+    showScreen('update');
+    renderHistory();
+  }
+}
+
+// ── APPLY UPDATE ──
+function applyUpdate() {
+  const input = document.getElementById('update-input').value.trim();
+  const success = document.getElementById('update-success');
+  const error = document.getElementById('update-error');
+  success.style.display = 'none';
+  error.style.display = 'none';
+
+  if (!input) {
+    error.textContent = 'Pegá el código primero.';
+    error.style.display = 'block';
+    return;
+  }
+
+  let data;
+  try {
+    data = JSON.parse(input);
+  } catch(e) {
+    error.innerHTML = 'El código no es válido. Asegurate de copiar todo el bloque completo, incluyendo { y } del principio y final.<br><br>Error: ' + e.message;
+    error.style.display = 'block';
+    return;
+  }
+
+  if (!data.week || !data.days || !Array.isArray(data.days)) {
+    error.textContent = 'El formato no es correcto. El código debe tener "week" y "days".';
+    error.style.display = 'block';
+    return;
+  }
+
+  currentWeek = data;
+  saveWeek(data);
+  renderHome();
+  renderHistory();
+  document.getElementById('update-input').value = '';
+  success.style.display = 'block';
+  setTimeout(() => { success.style.display = 'none'; }, 3000);
+}
+
+// ── RENDER HISTORY ──
+function renderHistory() {
+  const history = loadHistory();
+  const container = document.getElementById('update-history');
+  if (!history.length) {
+    container.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;padding:20px">Sin historial aún</div>';
+    return;
+  }
+  container.innerHTML = history.map(h => `
+    <div class="update-history-item">
+      <div class="uh-week">${h.week}</div>
+      <div class="uh-date">Cargada el ${h.date}</div>
+    </div>
+  `).join('');
+}
+
+// ── INIT ──
+function init() {
+  const saved = loadWeek();
+  currentWeek = saved || DEFAULT_WEEK;
+  if (!saved) saveWeek(DEFAULT_WEEK);
+  renderHome();
+
+  // auto-scroll to today on home
+  setTimeout(() => {
+    const todayId = getTodayId();
+    const cards = document.querySelectorAll('.day-card');
+    cards.forEach(card => {
+      if (card.classList.contains('today')) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  }, 100);
+}
+
+init();
+</script>
+</body>
+</html>
